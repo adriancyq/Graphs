@@ -11,32 +11,47 @@
 #define ACTORGRAPH_H
 
 #include <iostream>
-
-// Maybe include some data structures here
+#include "ActorEdge.h"
 
 using namespace std;
 
-class ActorGraph {
+class ActorGraph
+{
 protected:
-  
-    // Maybe add class data structure(s) here
+
 
 public:
-    ActorGraph(void);
 
-    // Maybe add some more methods here
-  
-    /** You can modify this method definition as you wish
-     *
-     * Load the graph from a tab-delimited file of actor->movie relationships.
-     *
-     * in_filename - input filename
-     * use_weighted_edges - if true, compute edge weights as 1 + (2015 - movie_year), otherwise all edge weights will be 1
-     *
-     * return true if file was loaded sucessfully, false otherwise
-     */
-    bool loadFromFile(const char* in_filename, bool use_weighted_edges);
-  
+  /*
+   * Store each movie in a hashmap, where the key is the movie title + year,
+   * and the value is the ActorEdge object.
+   */
+  unordered_map<string, Movie *> movies;
+
+  /*
+   * Store each actor in a hashmap, where the key is the actor name and the
+   * value is the ActorNode object.
+   */
+   unordered_map<string, ActorNode *> actors;
+
+  ActorGraph(void);
+
+  /*
+   * Load the graph from a tab-delimited file of actor->movie relationships.
+   *
+   * in_filename - input filename
+   * use_weighted_edges - if true, compute edge weights as 1 +
+   * (2015 - movie_year), otherwise all edge weights will be 1
+   *
+   * Return true if file was loaded sucessfully, false otherwise
+   */
+  bool loadFromFile(const char* in_filename, bool use_weighted_edges);
+
+  /*
+   * Create the graph after reading in the information.
+   */
+   void createGraph();
+
 };
 
 

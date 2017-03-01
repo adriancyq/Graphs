@@ -3,6 +3,17 @@
 
 using namespace std;
 
+struct Movie {
+  string title;
+  int year;
+  vector<ActorNode *> cast;
+  string id;
+
+  Movie(string name, int yr): title(name), year(yr), cast({}) {
+    id = "[" + title + "#@" + to_string(year) + "]";
+  }
+}
+
 class ActorEdge
 {
 public:
@@ -18,15 +29,14 @@ public:
   ActorNode * dest;
 
   /*
-   * The name of the movie.
+   * The associated movie for this edge.
    */
-  string name;
-
+  Movie * movie;
   /*
-   * The year this was movie was released.
+   * The weight, calculated as (2015 - movie_year).
    */
-  int year;
+  int weight;
 
-  ActorEdge(ActorNode * source, ActorNode * dest, string name, int year):
-    source(source), dest(dest), name(name), year(year) {}
+  ActorEdge(ActorNode * src, ActorNode * dst, Movie * mov, int wt):
+    source(src), dest(dst),movie(mov), weight(wt) {}
 }
