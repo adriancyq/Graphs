@@ -1,12 +1,13 @@
-#include <vector>
-#include "ActorEdge.h"
+#ifndef ACTORNODE_HPP
+#define ACTORNODE_HPP
 
+#include <unordered_map>
+#include "Movie.h"
 using namespace std;
 
 class ActorNode
 {
-
-private:
+public:
 
   /*
    * Cost of the best path discovered so far from the start vertex to this
@@ -25,12 +26,10 @@ private:
    */
   bool done;
 
-public:
-
   /*
    * Adjacency list containing edges where the current node is the source.
    */
-  vector<ActorEdge *> adjacent;
+  unordered_map<ActorNode *, Movie *> adjacent;
 
   /*
    * Name of the actor.
@@ -41,6 +40,8 @@ public:
    * Constructs an ActorNode instance.
    */
   ActorNode(string name):
-      name(name), adjacent({}), distance(numeric_limits<int>::min()),
+      name(name), adjacent({}), dist(numeric_limits<int>::min()),
       prev(NULL), done(false) {}
-}
+};
+
+#endif // ACTORNODE_HPP

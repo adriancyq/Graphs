@@ -63,27 +63,38 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges) 
         // Create a unique identifier for the movie
         string movie_id = "[" + movie_title + "#@" + to_string(movie_year) + "]";
 
-        // Check if an entry for the actor does not exist
+        // Check if the actor has not been encountered yet in the hashmap
         if (actors.find(actor_name) == actors.end()) {
-          ActorNode * actor = new ActorNode(actor_name);
-          actors.insert({actor_name, actor});
+          ActorNode * new_actor = new ActorNode(actor_name);
+          actors.insert({actor_name, new_actor});
         }
 
-        // Check if the movie does not exist
-        Movie * movie;
-        auto search = movies.find(movie_id);
-        if (search == movies.end()) {
-          movie = new Movie(movie_title, movie_year);
-          movies.insert({movie_id, movie});
+        // Check if the movie has not been encountered yet in the hashmap
+        Movie * curr_movie;
+        if (movies.find(movie_id) == movies.end()) {
+
+          // If weighted edge, use 2015 - movie year + 1
+          if (use_weighted_edges) {
+            curr_movie = new Movie(movie_year, 2015 - movie_year + 1, movie_id,
+              movie_title);
+          }
+
+          // If unweighted edge, use 1 for all edges
+          else {
+            curr_movie = new Movie(movie_year, 1, movie_id, movie_title);
+          }
+
+          // Insert into hashmap containing movies
+          movies.insert({movie_id, curr_movie});
         }
 
-        // Already have records of movie
+        // Already have a record of the current movie
         else {
-          movie = search.second;
+          curr_movie = movies[movie_id];
         }
 
-        // Add actor to movie cast
-        movie->cast.push_back(actors.find(actor_name).second);
+        // Add the actor to the cast of the movie
+        movies[movie_id]->cast.push_back(actor_name);
     }
 
     if (!infile.eof()) {
@@ -96,29 +107,6 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges) 
 }
 
 
-ActorGraph::createGraph() {
-  ActorNode * p1;
-  ActorNode * p2;
-
-  // Iterate through each movie in the hashtable
-  for (Movie * movie: movies) {
-
-    // Go through all the cast members in the movies and make connections
-    for (int i = 0; i < movie->cast.size(); i++) {
-      for (int j = i + 1; j < movie->cast.size(); j++) {
-
-        // Get the two people we need to make connections to
-        p1 = movie->cast[i];
-        p2 = movie->cast[j];
-
-        // Link the two people
-        ActorEdge * edge1 = new ActorEdge(p1, p2, movie, 2015 - movie->year);
-        ActorEdge * edge2 = new ActorEdge(p2, p1, movie, 2015 - movie->year);
-
-        // Add to respective adjacency lists
-        p1->adjacent.push_back(edge1);
-        p2->adjacent.push_back(edge2);
-      }
-    }
-  }
+void ActorGraph::createGraph() {
+  return;
 }

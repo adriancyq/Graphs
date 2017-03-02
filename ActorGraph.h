@@ -7,19 +7,18 @@
  * defined in movie_casts.tsv. Feel free to modify any/all aspects as you wish.
  */
 
-#ifndef ACTORGRAPH_H
-#define ACTORGRAPH_H
+ #ifndef ACTORGRAPH_H
+ #define ACTORGRAPH_H
 
 #include <iostream>
-#include "ActorEdge.h"
+#include <unordered_map>
+#include "ActorNode.h"
+#include "Movie.h"
 
 using namespace std;
 
 class ActorGraph
 {
-protected:
-
-
 public:
 
   /*
@@ -50,8 +49,12 @@ public:
   /*
    * Create the graph after reading in the information.
    */
-   void createGraph();
+  void createGraph();
 
+  /*
+   * Destructor function for ActorGraph.
+   */
+  ~ActorGraph();
 };
 
 

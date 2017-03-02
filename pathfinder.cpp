@@ -3,7 +3,7 @@
  * Author: Jonathan Chiu (A12113428), Adrian Cordova (A12010305)
  * Date:   CSE 100 Winter 2017 2/28/17
  *
- * This file is meant to exist as a way to find the shortest path 
+ * This file is meant to exist as a way to find the shortest path
  * from one actor to another actor through shared movies.
  */
 
@@ -14,14 +14,14 @@
  #include <vector>
  #include <queue>
  #include <string>
- #include "ActorGraph.hpp"
+ #include "ActorGraph.h"
 
  int pathfinder(int argc, char** argv){
  	string weightedArg = argv[2];
  	bool Weighted;
  	ActorGraph graph;
  	int zero = 0;
- 	
+
  	//setting a boolean to use in load later
  	if(weightedArg.compare("w") == zero) Weighted = true;
  	else if(weightedArg.compare("u") == zero) Weighted = false;
