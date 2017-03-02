@@ -95,6 +95,9 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges) 
 
         // Add the actor to the cast of the movie
         movies[movie_id]->cast.push_back(actor_name);
+
+        // Add movie to list of movies actor is involved in
+        actors[actor_name]->movie.push(curr_movie);
     }
 
     if (!infile.eof()) {
