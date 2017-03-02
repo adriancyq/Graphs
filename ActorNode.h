@@ -65,7 +65,7 @@ public:
    * Constructs an ActorNode instance.
    */
   ActorNode(string name):
-      name(name), adjacent({}), dist(numeric_limits<int>::min()),
+      name(name), adjacent({}), dist(numeric_limits<int>::max()),
       prev(NULL), done(false) {}
 };
 

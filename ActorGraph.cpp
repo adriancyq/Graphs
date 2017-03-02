@@ -146,3 +146,15 @@ void ActorGraph::createGraph() {
     }
   }
 }
+
+/*
+ * Reset the prev and dist fields in all te nodes in the tree.
+ */
+void ActorGraph::reset()
+{
+  for (auto actor = actors.begin(); actor != actors.end(); actor++) {
+    actor->second->prev = NULLL;
+    actor->second->dist = numeric_limits<int>::max();
+  }
+  return;
+}

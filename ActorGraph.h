@@ -65,8 +65,12 @@ public:
     for (auto movie = movies.begin(); movie != movies.end(); movie++) {
       delete movie->second;
     }
-
   }
+
+  /*
+   * Reset the dist ad prev fields in all the nodes in the tree.
+   */
+   void reset();
 };
 
 

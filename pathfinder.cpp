@@ -18,6 +18,69 @@
 
 using namespace std;
 
+void breadthFirstSearch(string actor1, string actor2, ActorGraph & graph) {
+  ActorNode * start = graph.actors[actor1];
+  ActorNode * end = graph.actors[actor2];
+
+  // Initialize the queue and add starting node
+  queue<ActorNode *> toExplore;
+  start->dist = 0;
+  toExplore.push(start);
+
+  // Do a BFS
+  while (!toExplore.empty()) {
+
+    // Dequeue the head
+    ActorNode * head = toExplore.top();
+    toExplore.pop();
+
+    // Check if we found the node we're looking for
+    if (head->name == end->name) { return; }
+
+    // Explore each of the neighbors
+    for (auto node = head->adjacent.begin(); node != head->adjacent.end(); node++) {
+      ActorNode * curr_node = node.first;
+
+      // Check if distance is infinity (not visited)
+      if (curr_node->dist == numeric_limits<int>::max()) {
+        curr_node->dist = head->dist + 1;
+        curr_node->prev = head;
+        toExplore.push(curr_node);
+      }
+    }
+  }
+}
+
+void outputPath(string actor1, string actor2, ofstream & output, ActorGraph & graph)
+{
+  // Grab the start and end nodes
+  ActorNode * start = graph.actors[actor1];
+  ActorNode * end = graph.actors[actor2];
+
+  // Initialize a vector to keep track of nodes in the path
+  vector<ActorNode *> path;
+
+  // Traverse the path from end to start
+  while (start != end) {
+    path.push_back(end);
+    end = end->prev;
+  }
+
+  // Output the path from start to second to end (or else there will be an
+  // extra -->)
+  for (int i = path.size() - 1; i > 0; i--) {
+    output << '(' << path[i]->name << ")--[" <<
+      path[i]->adjacent[path[i - 1]]->id << "]-->";
+  }
+
+  // Output the last node in the path
+  output <<'('<< path[0]->name << ')'<<endl;
+
+  // Reset the graph
+  graph.reset();
+  return;
+}
+
 int main(int argc, char ** argv) {
 
   // Check that user passed in 4 arguments
@@ -34,7 +97,9 @@ int main(int argc, char ** argv) {
 
   // Initialize the graph and read in actor/movie pairs
   ActorGraph * graph = new ActorGraph();
-  graph->loadFromFile(movieCasts, weightedEdges);
+   if (!graph->loadFromFile(movieCasts, weightedEdges)) {
+     cerr << "Unable to load actor/movie pairs from file." << endl;
+   }
 
   // Create the adjacency lists for each actor node
   graph->createGraph();
@@ -42,6 +107,6 @@ int main(int argc, char ** argv) {
   // TODO Read in testPairs
 
   // TODO Use BFS to find links
-  
+
   return 0;
 }
