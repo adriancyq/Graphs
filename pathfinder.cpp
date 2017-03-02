@@ -16,82 +16,32 @@
  #include <string>
  #include "ActorGraph.h"
 
- // int pathfinder(int argc, char** argv){
- // 	string weightedArg = argv[2];
- // 	bool Weighted;
- // 	ActorGraph graph;
- // 	int zero = 0;
- //
- // 	//setting a boolean to use in load later
- // 	if(weightedArg.compare("w") == zero) Weighted = true;
- // 	else if(weightedArg.compare("u") == zero) Weighted = false;
- // 	else { return -1;}
- //
- // 	ofstream outputFile(argv[4]);
- // 	ifstream inputFile(argv[3]);
- // 	outputFile << "(actor)--[movie#@year]-->(actor)--..." << endl;
- //
- // 	//loading from a file
- // 	bool loadSuccessful = graph.loadFromFile(argv[1], Weighted);
- // 	graph.adjacencyVector();
- // 	unordered_map<string, ActorNode*> tempNode = graph.getActorMap();
- //
- // 	while( inputFile ){
- // 		string line;
- // 		if(!getline( inputFile, line)) break;
- // 		istringstream lineStream(line);
- // 		vector<string> distance;
- // 		while( lineStream ){
- // 			string nextLine;
- // 			if(!getline( lineStream, nextLine, '\t')) break;
- // 			distance.push_back(nextLine);
- // 		}
- // 		if(distance.size() != 2) continue;
- // 		graph.refreshDistance();
- //
- // 		string firstActor(distance[0]);
- // 		string lastActor(distance[1]);
- //
- // 		if( (tempNode.find(firstActor) == tempNode.end()) || (tempNode.find(lastActor) == tempNode.end()) ) return -1;
- //
- // 		//if weighted
- // 		if(Weighted == true){
- // 			graph.Dijkstra(tempNode[firstActor]);
- // 			graph.printOutWeighted(tempNode[firstActor], tempNode[lastActor], outputFile);
- // 		}
- //
- // 		//if unweighted
- // 		if(Weighted == false){
- // 			graph.BFSTraverse(tempNode[firstActor]);
- // 			graph.printOut(tempNode[firstActor], tempNode[lastActor], outputFile);
- // 		}
- // 		outputFile << endl;
- // 	}
- // 		inputFile.close();
- // 		outputFile.flush();
- // 		outputFile.close();
- // 		return zero;
- // }
- //
- // void implementation(){
- // 	cout << "You must give 4 arguments!" << endl;
- // }
-//
-// int main(int argc, char **argv){
-// 	int five = 5;
-// 	if(argc != five){
-// 		implementation();
-// 		return -1;
-// 	}
-// 	if(pathfinder(argc, argv) == - 1){
-// 		implementation();
-// 		return -1;
-// 	}
-// 	return zero;
-// }
+using namespace std;
 
 int main(int argc, char ** argv) {
+
+  // Check that user passed in 4 arguments
+  if (argc != 5) {
+    cerr << "Wrong number of arguments."; << endl;
+    return -1;
+  }
+
+  // Grab user specified files
+  string movieCasts = argv[1];
+  bool weightedEdges = (argv[2] == "w") ? true: false;
+  string testPairs = argv[3];
+  string outputFile = argv[4];
+
+  // Initialize the graph and read in actor/movie pairs
   ActorGraph * graph = new ActorGraph();
-  graph->loadFromFile(argv[1], false);
+  graph->loadFromFile(movieCasts, weightedEdges);
+
+  // Create the adjacency lists for each actor node
+  graph->createGraph();
+
+  // TODO Read in testPairs
+
+  // TODO Use BFS to find links
+  
   return 0;
 }
