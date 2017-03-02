@@ -103,10 +103,43 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges) 
     }
     infile.close();
 
+    // Print number of actors and movies
+    cout << "Number of actors: " << actors.size() << endl;
+    cout << "Number of movies: " << movies.size() << endl;
     return true;
 }
 
-
+/*
+ * Populate the adjacency list for each node, using actors and movies
+ * read in from loadFromFile.
+ */
 void ActorGraph::createGraph() {
-  return;
+
+  // Iterate through each actor
+  for (auto actor: actors) {
+    Movie * curr_movie;
+    ActorNode * curr_actor = actor.second;
+
+    // Go through all movies each actor was in
+    while (curr_actor->movie.size() > 0) {
+
+      // Grab the next most recent movie the actor was in
+      curr_movie = curr_actor->movie.top();
+      curr_actor->movie.pop();
+
+      // Go through the cast of each movie
+      int size = curr_movie->cast.size();
+      for (int i = 0; i < size; i++) {
+
+        // Add a new node to the current actor's adjacency list if the node
+        // doesn't already exist AND the current cast member isn't the current
+        // actor.
+        if (curr_actor->adjacent.find(actors[curr_movie->cast[i]]) ==
+            curr_actor->adjacent.end() && actors[curr_movie->cast[i]] !=
+            curr_actor) {
+          curr_actor->adjacent.insert({actors[curr_movie->cast[i]], curr_movie});
+        }
+      }
+    }
+  }
 }

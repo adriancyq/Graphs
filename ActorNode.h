@@ -2,8 +2,18 @@
 #define ACTORNODE_HPP
 
 #include <unordered_map>
+#include <queue>
 #include "Movie.h"
 using namespace std;
+
+
+class MovieComparator
+{
+public:
+  bool operator() (Movie * & first, Movie * & second) {
+    return (first->weight) > (second->weight);
+  }
+};
 
 class ActorNode
 {
@@ -27,10 +37,17 @@ public:
   bool done;
 
   /*
-   * Adjacency list containing edges where the current node is the source.
+   * Adjacency list implemented as a hashtable. Each entry contains
+   * an adjacent node and its value is the latest movie they are associated
+   * with.
    */
   unordered_map<ActorNode *, Movie *> adjacent;
 
+  /*
+   * All movies the actor played a role in, ordered from latest (higher
+   * priority) to earliest (lower priority).
+   */
+  priority_queue<Movie*, vector<Movie*>, MovieComparator> movie;
   /*
    * Name of the actor.
    */

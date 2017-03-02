@@ -54,7 +54,19 @@ public:
   /*
    * Destructor function for ActorGraph.
    */
-  ~ActorGraph();
+  ~ActorGraph() {
+
+    // Delete all the actors
+    for (auto actor = actors.begin(); actor != actors.end(); actor++) {
+      delete actor->second;
+    }
+
+    // Delete all the movies
+    for (auto movie = movies.begin(); movie != movies.end(); movie++) {
+      delete movie->second;
+    }
+
+  }
 };
 
 
