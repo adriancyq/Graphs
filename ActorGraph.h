@@ -1,7 +1,7 @@
 /*
  * ActorGraph.h
- * Author: <YOUR NAME HERE>
- * Date:   <DATE HERE>
+ * Author:  Jonathan Chiu (A12113428), Adrian Cordova (A12010305)
+ * Date: CSE 100 Winter 2017 2/28/17
  *
  * This file is meant to exist as a container for starter code that you can use to read the input file format
  * defined in movie_casts.tsv. Feel free to modify any/all aspects as you wish.
