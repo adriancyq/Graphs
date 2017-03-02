@@ -1,5 +1,5 @@
 /*
- * ActorGraph.h
+ * pathfinder.cpp
  * Author: Jonathan Chiu (A12113428), Adrian Cordova (A12010305)
  * Date:   CSE 100 Winter 2017 2/28/17
  *
