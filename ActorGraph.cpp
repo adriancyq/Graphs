@@ -61,7 +61,7 @@ bool ActorGraph::loadFromFile(string in_filename, bool use_weighted_edges) {
       int movie_year = stoi(record[2]);
 
       // Create a unique identifier for the movie
-      string movie_id = "[" + movie_title + "#@" + to_string(movie_year) + "]";
+      string movie_id = movie_title + "#@" + to_string(movie_year);
 
       // Check if the actor has not been encountered yet in the hashmap
       if (actors.find(actor_name) == actors.end()) {

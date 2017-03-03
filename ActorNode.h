@@ -9,6 +9,7 @@
 #ifndef ACTORNODE_HPP
 #define ACTORNODE_HPP
 
+#include <limits>
 #include <unordered_map>
 #include <queue>
 #include "Movie.h"
@@ -46,7 +47,7 @@ public:
    * All movies the actor played a role in.
    */
   queue<Movie *> movie;
-  
+
   /*
    * Name of the actor.
    */
