@@ -44,7 +44,7 @@ public:
    *
    * Return true if file was loaded sucessfully, false otherwise
    */
-  bool loadFromFile(const char* in_filename, bool use_weighted_edges);
+  bool loadFromFile(string in_filename, bool use_weighted_edges);
 
   /*
    * Create the graph after reading in the information.

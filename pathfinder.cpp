@@ -31,7 +31,7 @@ void breadthFirstSearch(string actor1, string actor2, ActorGraph & graph) {
   while (!toExplore.empty()) {
 
     // Dequeue the head
-    ActorNode * head = toExplore.top();
+    ActorNode * head = toExplore.front();
     toExplore.pop();
 
     // Check if we found the node we're looking for
@@ -39,7 +39,7 @@ void breadthFirstSearch(string actor1, string actor2, ActorGraph & graph) {
 
     // Explore each of the neighbors
     for (auto node = head->adjacent.begin(); node != head->adjacent.end(); node++) {
-      ActorNode * curr_node = node.first;
+      ActorNode * curr_node = node->first;
 
       // Check if distance is infinity (not visited)
       if (curr_node->dist == numeric_limits<int>::max()) {
@@ -66,6 +66,9 @@ void outputPath(string actor1, string actor2, ofstream & output, ActorGraph & gr
     end = end->prev;
   }
 
+  // Add the starting node to the last position in the vector 
+  path.push_back(start);
+
   // Output the path from start to second to end (or else there will be an
   // extra -->)
   for (int i = path.size() - 1; i > 0; i--) {
@@ -89,29 +92,32 @@ int main(int argc, char ** argv) {
     return -1;
   }
 
+  string second = argv[2];
+  string weight = "w";
+
   // Grab user specified files
   string movieCasts = argv[1];
-  bool weightedEdges = (argv[2] == "w") ? true: false;
+  bool weightedEdges = (second.compare(weight)) ? true: false;
   string testPairs = argv[3];
   string outputFile = argv[4];
 
   // Initialize the graph and read in actor/movie pairs
   ActorGraph * graph = new ActorGraph();
-   if (!graph->loadFromFile(movieCasts, weightedEdges)) {
-     cerr << "Unable to load actor/movie pairs from file." << endl;
-   }
+  graph->loadFromFile(movieCasts, weightedEdges);
 
   // Create the adjacency lists for each actor node
   graph->createGraph();
 
-  // TODO Read in testPairs
-  //initialize the file stream
+  // Initialize the input file stream
   ifstream infile(testPairs);
+
+  // Initialize the output file stream
+  ofstream outfile(outputFile);
 
   bool have_header = false;
 
-  //keep reading linues until end of file is reached
-  while (infile){
+  //keep reading lines until end of file is reached
+  while (infile) {
   	string s;
 
   	//get the next line
@@ -122,7 +128,7 @@ int main(int argc, char ** argv) {
   		continue;
   	}
 
-  	// Parse the string 
+  	// Parse the string
   	istringstream ss( s );
   	vector <string> record;
 
@@ -135,21 +141,26 @@ int main(int argc, char ** argv) {
 
   		record.push_back( next );
   	}
-  	//We should have exactly 3 columns: name, movie, year
-  	if (record.size() != 3) {continue;}
 
-  	string actor_name(record[0]);
-  	string movie_title(record[1]);
-  	int movie_year = stoi(record[2]);
+
+  	//We should have exactly 2 columns: starting actor and ending actor
+  	if (record.size() != 2) {continue;}
+  	string actor1(record[0]);
+  	string actor2(record[1]);
+
+    // Find shortest path from actor 1 to actor 2
+    breadthFirstSearch(actor1, actor2, *graph);
+    outputPath(actor1, actor2, outfile, *graph);
+  }
 
   if (!infile.eof()) {
-        cerr << "Failed to read " << testPairs << "!\n";
-        return false;
-    }
+    cerr << "Failed to read " << testPairs << "!\n";
     infile.close();
-
-  // TODO Use BFS to find links
-
-  return 0;
+    outfile.close();
+    return -1;
   }
+
+  infile.close();
+  outfile.close();
+  return 0;
 }
