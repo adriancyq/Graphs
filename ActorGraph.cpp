@@ -127,7 +127,7 @@ void ActorGraph::createGraph() {
     while (curr_actor->movie.size() > 0) {
 
       // Grab the next most recent movie the actor was in
-      curr_movie = curr_actor->movie.top();
+      curr_movie = curr_actor->movie.front();
       curr_actor->movie.pop();
 
       // Go through the cast of each movie

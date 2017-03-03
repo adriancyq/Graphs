@@ -14,15 +14,6 @@
 #include "Movie.h"
 using namespace std;
 
-
-class MovieComparator
-{
-public:
-  bool operator() (Movie * & first, Movie * & second) {
-    return (first->weight) > (second->weight);
-  }
-};
-
 class ActorNode
 {
 public:
@@ -52,10 +43,10 @@ public:
   unordered_map<ActorNode *, Movie *> adjacent;
 
   /*
-   * All movies the actor played a role in, ordered from latest (higher
-   * priority) to earliest (lower priority).
+   * All movies the actor played a role in.
    */
-  priority_queue<Movie*, vector<Movie*>, MovieComparator> movie;
+  queue<Movie *> movie;
+  
   /*
    * Name of the actor.
    */
