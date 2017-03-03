@@ -66,7 +66,7 @@ void outputPath(string actor1, string actor2, ofstream & output, ActorGraph & gr
     end = end->prev;
   }
 
-  // Add the starting node to the last position in the vector 
+  // Add the starting node to the last position in the vector
   path.push_back(start);
 
   // Output the path from start to second to end (or else there will be an
@@ -113,7 +113,8 @@ int main(int argc, char ** argv) {
 
   // Initialize the output file stream
   ofstream outfile(outputFile);
-
+  outfile << "(actor)--[movie#@year]-->(actor)--..." << endl;
+  
   bool have_header = false;
 
   //keep reading lines until end of file is reached
