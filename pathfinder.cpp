@@ -18,6 +18,46 @@
 
 using namespace std;
 
+class nodeComparer{
+  public:
+    bool operator() (ActorNode*& first, ActorNode*& next){
+      return (first->dist) > (next->dist);
+    }
+};
+
+void Dijkstra(string &actor1, string &actor2, ActorGraph &graph) {
+  string startActor = actor1;
+  string nextActor = actor2;
+  priority_queue<ActorNode*, vector<ActorNode*>, nodeComparer> actorQ;
+  ActorNode* front;
+  int current_distance;
+
+
+  graph.actors[startActor]->dist = 0;
+  actorQ.push(graph.actors[startActor]);
+
+  while (!actorQ.empty()){
+    front = actorQ.top();
+    actorQ.pop();
+
+    if (front->done){
+      continue;
+    }
+    else{
+      front->done = true;
+      for (auto theOne = front->adjacent.begin(); theOne != front->adjacent.end(); ++theOne) {
+        current_distance = front->dist + (theOne->second->weight);
+
+        if (current_distance < theOne->first->dist){
+          theOne->first->dist = current_distance;
+          theOne->first->prev = front;
+          actorQ.push(theOne->first);
+        }
+      }
+    }
+  }
+}
+
 void breadthFirstSearch(string actor1, string actor2, ActorGraph & graph) {
   ActorNode * start = graph.actors[actor1];
   ActorNode * end = graph.actors[actor2];
@@ -148,10 +188,11 @@ int main(int argc, char ** argv) {
   	if (record.size() != 2) {continue;}
   	string actor1(record[0]);
   	string actor2(record[1]);
-
-    // Find shortest path from actor 1 to actor 2
-    breadthFirstSearch(actor1, actor2, *graph);
-    outputPath(actor1, actor2, outfile, *graph);
+ 
+      Dijkstra(actor1, actor2, *graph);     
+      // Find shortest path from actor 1 to actor 2
+      breadthFirstSearch(actor1, actor2, *graph);
+      outputPath(actor1, actor2, outfile, *graph);
   }
 
   if (!infile.eof()) {
