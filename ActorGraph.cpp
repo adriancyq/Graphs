@@ -19,12 +19,20 @@ using namespace std;
 
 ActorGraph::ActorGraph(void) {}
 
-bool ActorGraph::loadFromFile(string in_filename, bool use_weighted_edges) {
+/*
+ * Populate the movies and actors hashtables in the graph. Return the
+ * earliest year in the dataset, or -1 if unable to read from the filestream.
+ */
+int ActorGraph::loadFromFile(string in_filename, bool use_weighted_edges) {
 
   // Initialize the file stream
   ifstream infile(in_filename);
 
+  // Skip the first line, since it is a header
   bool have_header = false;
+
+  // Keep track of the earliest year available
+  int minYear = 2015;
 
   // keep reading lines until the end of file is reached
   while (infile) {
@@ -60,6 +68,11 @@ bool ActorGraph::loadFromFile(string in_filename, bool use_weighted_edges) {
       string movie_title(record[1]);
       int movie_year = stoi(record[2]);
 
+      // Check if this movie is made earlier than current minYear
+      if (movie_year < minYear) {
+        minYear = movie_year;
+      }
+
       // Create a unique identifier for the movie
       string movie_id = movie_title + "#@" + to_string(movie_year);
 
@@ -71,18 +84,12 @@ bool ActorGraph::loadFromFile(string in_filename, bool use_weighted_edges) {
 
       // Check if the movie has not been encountered yet in the hashmap
       Movie * curr_movie;
+      int weight = 1;
       if (movies.find(movie_id) == movies.end()) {
 
-        // If weighted edge, use 2015 - movie year + 1
-        if (use_weighted_edges) {
-          curr_movie = new Movie(movie_year, 2015 - movie_year + 1, movie_id,
-            movie_title);
-        }
-
-        // If unweighted edge, use 1 for all edges
-        else {
-          curr_movie = new Movie(movie_year, 1, movie_id, movie_title);
-        }
+        // Create a new movie with the correct weight
+        if (use_weighted_edges) { weight = 2015 - movie_year + 1; }
+        curr_movie = new Movie(movie_year, weight, movie_id, movie_title);
 
         // Insert into hashmap containing movies
         movies.insert({movie_id, curr_movie});
@@ -96,39 +103,49 @@ bool ActorGraph::loadFromFile(string in_filename, bool use_weighted_edges) {
       // Add the actor to the cast of the movie
       movies[movie_id]->cast.push_back(actor_name);
 
+      // Check if the actor has been involved in a movie in the given year
+      ActorNode * curr_actor = actors[actor_name];
+      if (curr_actor->movie.find(movie_year) == curr_actor->movie.end()) {
+
+        // Create a new queue to hold movies of the given year for that actor
+        queue<Movie *> movieQueue;
+        curr_actor->movie.insert({movie_year, movieQueue});
+      }
+
       // Add movie to list of movies actor is involved in
-      actors[actor_name]->movie.push(curr_movie);
+      curr_actor->movie[movie_year].push(curr_movie);
   }
 
   if (!infile.eof()) {
       cerr << "Failed to read " << in_filename << "!\n";
-      return false;
+      return -1;
   }
   infile.close();
 
   // Print number of actors and movies
   cout << "Number of actors: " << actors.size() << endl;
   cout << "Number of movies: " << movies.size() << endl;
-  return true;
+  return minYear;
 }
 
 /*
- * Populate the adjacency list for each node, using actors and movies
- * read in from loadFromFile.
+ * Populate adjacency lists with movies made in the given year. Assume that
+ * there exists at least one movie made in the given year.
  */
-void ActorGraph::createGraph() {
+void ActorGraph::connectInYear(int year) {
 
   // Iterate through each actor
   for (auto actor: actors) {
-    Movie * curr_movie;
     ActorNode * curr_actor = actor.second;
 
-    // Go through all movies each actor was in
-    while (curr_actor->movie.size() > 0) {
+    // Go through all movies each actor was in for the given year
+    Movie * curr_movie;
+    queue<Movie *> movieQueue = curr_actor->movie[year];
+    while(movieQueue.size() > 0) {
 
-      // Grab the next most recent movie the actor was in
-      curr_movie = curr_actor->movie.front();
-      curr_actor->movie.pop();
+      // Grab the next movie
+      curr_movie = movieQueue.front();
+      movieQueue.pop();
 
       // Go through the cast of each movie
       int size = curr_movie->cast.size();
@@ -144,6 +161,18 @@ void ActorGraph::createGraph() {
         }
       }
     }
+  }
+}
+
+/*
+ * Populate the adjacency list for each node, in order of year. Pass in
+ * which year we want to start populating.
+ */
+void ActorGraph::createGraph(int minYear) {
+
+  // Fill each adjacency list by year
+  for (int year = minYear; year < 2016; year++) {
+    connectInYear(year);
   }
 }
 

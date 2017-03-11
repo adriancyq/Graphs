@@ -46,7 +46,8 @@ public:
   /*
    * All movies the actor played a role in.
    */
-  queue<Movie *> movie;
+  //queue<Movie *> movie;
+  unordered_map<int, queue<Movie *>> movie;
 
   /*
    * Name of the actor.

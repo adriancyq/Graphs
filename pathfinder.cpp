@@ -143,10 +143,10 @@ int main(int argc, char ** argv) {
 
   // Initialize the graph and read in actor/movie pairs
   ActorGraph * graph = new ActorGraph();
-  graph->loadFromFile(movieCasts, weightedEdges);
+  int minYear = graph->loadFromFile(movieCasts, weightedEdges);
 
   // Create the adjacency lists for each actor node
-  graph->createGraph();
+  graph->createGraph(minYear);
 
   // Initialize the input file stream
   ifstream infile(testPairs);
@@ -154,7 +154,7 @@ int main(int argc, char ** argv) {
   // Initialize the output file stream
   ofstream outfile(outputFile);
   outfile << "(actor)--[movie#@year]-->(actor)--..." << endl;
-  
+
   bool have_header = false;
 
   //keep reading lines until end of file is reached
@@ -172,27 +172,33 @@ int main(int argc, char ** argv) {
   	// Parse the string
   	istringstream ss( s );
   	vector <string> record;
-
   	while (ss) {
   		string next;
 
   		//Get the next string before hitting a tab character
   		//and put it in 'next'
   		if (!getline( ss, next, '\t' )) break;
-
   		record.push_back( next );
   	}
 
 
-  	//We should have exactly 2 columns: starting actor and ending actor
+  	// We should have exactly 2 columns: starting actor and ending actor
   	if (record.size() != 2) {continue;}
   	string actor1(record[0]);
   	string actor2(record[1]);
- 
-      Dijkstra(actor1, actor2, *graph);     
-      // Find shortest path from actor 1 to actor 2
+
+    // If we are using weighted edges, use Dijkstra's algorithm
+    if (weightedEdges) {
+      Dijkstra(actor1, actor2, *graph);
+    }
+
+    // If we are using unweighted edges, use a BFS
+    else {
       breadthFirstSearch(actor1, actor2, *graph);
-      outputPath(actor1, actor2, outfile, *graph);
+    }
+
+    // Output results of search
+    outputPath(actor1, actor2, outfile, *graph);
   }
 
   if (!infile.eof()) {

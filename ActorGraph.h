@@ -44,12 +44,14 @@ public:
    *
    * Return true if file was loaded sucessfully, false otherwise
    */
-  bool loadFromFile(string in_filename, bool use_weighted_edges);
+  int loadFromFile(string in_filename, bool use_weighted_edges);
 
   /*
    * Create the graph after reading in the information.
    */
-  void createGraph();
+  void createGraph(int minYear);
+
+  void connectInYear(int year);
 
   /*
    * Destructor function for ActorGraph.
