@@ -33,3 +33,5 @@ ActorGraph.o: Movie.h ActorNode.h ActorGraph.h
 clean:
 	rm -f pathfinder *.o core*
 	rm -rf pathfinder.dSYM
+	rm -f actorconnections
+	rm -rf actorconnections.dSYM

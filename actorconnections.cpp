@@ -86,6 +86,9 @@ int main(int argc, char ** argv) {
       graph->connectInYear(year);
       connected = graph->breadthFirstSearch(actor1, actor2);
 
+      // Reset the nodes for next search
+      graph->reset();
+      
       // Found a connection
       if (connected) {
         outfile << actor1 << "\t" << actor2 << "\t" << year << "\n";
