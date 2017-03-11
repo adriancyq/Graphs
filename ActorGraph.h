@@ -46,6 +46,11 @@ public:
    */
   int loadFromFile(string in_filename, bool use_weighted_edges);
 
+  bool breadthFirstSearch(string actor1, string actor2);
+
+  void clear();
+
+  void outputPath(string actor1, string actor2, ofstream & output);
   /*
    * Create the graph after reading in the information.
    */

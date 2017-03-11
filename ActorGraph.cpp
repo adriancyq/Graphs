@@ -177,7 +177,7 @@ void ActorGraph::createGraph(int minYear) {
 }
 
 /*
- * Reset the prev and dist fields in all te nodes in the tree.
+ * Reset the prev and dist fields in all the nodes in the tree.
  */
 void ActorGraph::reset()
 {
@@ -185,5 +185,94 @@ void ActorGraph::reset()
     actor->second->prev = NULL;
     actor->second->dist = numeric_limits<int>::max();
   }
+  return;
+}
+
+/*
+ * Clear all adjacency lists for all nodes.
+ */
+void ActorGraph::clear()
+{
+  for (auto actor = actors.begin(); actor != actors.end(); actor++) {
+    actor->second->adjacent.clear();
+  }
+}
+
+
+bool ActorGraph::breadthFirstSearch(string actor1, string actor2) {
+
+  // Grab the start and end nodes
+  ActorNode * start = actors[actor1];
+  ActorNode * end = actors[actor2];
+
+  // Initialize the queue and add starting node
+  queue<ActorNode *> toExplore;
+  start->dist = 0;
+  toExplore.push(start);
+
+  // Do a BFS
+  while (!toExplore.empty()) {
+
+    // Dequeue the head
+    ActorNode * head = toExplore.front();
+    toExplore.pop();
+
+    // Check if we found the node we're looking for
+    if (head->name == end->name) { return true; }
+
+    // Explore each of the neighbors
+    for (auto node = head->adjacent.begin(); node != head->adjacent.end(); node++) {
+      ActorNode * curr_node = node->first;
+
+      // Check if distance is infinity (not visited)
+      if (curr_node->dist == numeric_limits<int>::max()) {
+        curr_node->dist = head->dist + 1;
+        curr_node->prev = head;
+        toExplore.push(curr_node);
+      }
+    }
+  }
+
+  // Gone through the entire graph and could not find a connection
+  return false;
+}
+
+
+void ActorGraph::outputPath(string actor1, string actor2, ofstream & output) {
+
+  // Grab the start and end nodes
+  ActorNode * start = actors[actor1];
+  ActorNode * end = actors[actor2];
+
+  // Initialize a vector to keep track of nodes in the path
+  vector<ActorNode *> path;
+
+  // Traverse the path from end to start
+  while (start != end) {
+
+    // End if BFS was unsuccessful and there does not exists a path from
+    // start to end nodes
+    if (!end) {return; }
+
+    // Traverse path from end to start
+    path.push_back(end);
+    end = end->prev;
+  }
+
+  // Add the starting node to the last position in the vector
+  path.push_back(start);
+
+  // Output the path from start to second to end (or else there will be an
+  // extra -->)
+  for (int i = path.size() - 1; i > 0; i--) {
+    output << '(' << path[i]->name << ")--[" <<
+      path[i]->adjacent[path[i - 1]]->id << "]-->";
+  }
+
+  // Output the last node in the path
+  output <<'('<< path[0]->name << ')'<<endl;
+
+  // Reset the graph
+  reset();
   return;
 }
