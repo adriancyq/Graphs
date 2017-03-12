@@ -3,8 +3,7 @@
  * Author: Jonathan Chiu (A12113428), Adrian Cordova (A12010305)
  * Date:   CSE 100 Winter 2017 2/28/17
  *
- * This file is meant to exist as a way to find the shortest path
- * from one actor to another actor through shared movies.
+ * Find the shortest path from one actor to another actor through shared movies.
  */
 
  #include <sstream>

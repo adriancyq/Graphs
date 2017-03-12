@@ -44,9 +44,8 @@ public:
   unordered_map<ActorNode *, Movie *> adjacent;
 
   /*
-   * All movies the actor played a role in.
+   * All movies the actor played a role in, organized by year in a hashtable.
    */
-  //queue<Movie *> movie;
   unordered_map<int, queue<Movie *>> movie;
 
   /*

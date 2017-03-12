@@ -3,8 +3,8 @@
  * Author: Jonathan Chiu (A12113428), Adrian Cordova (A12010305)
  * Date: CSE 100 Winter 2017 2/28/17
  *
- * This file is meant to exist as a container for starter code that you can use to read the input file format
- * defined in movie_casts.tsv. Feel free to modify any/all aspects as you wish.
+ * Implementation of the necessary methods for pathfinder, actorconnections
+ * and basic graph setup for the ActorGraph.
  */
 
 #include <fstream>
@@ -17,103 +17,107 @@
 
 using namespace std;
 
+/*
+ * Constructor function for the graph.
+ */
 ActorGraph::ActorGraph(void) {}
 
 /*
- * Populate the movies and actors hashtables in the graph. Return the
- * earliest year in the dataset, or -1 if unable to read from the filestream.
+ * Populate the hashtable of movies and actors from a tab-delimited file of
+ * actor-movie relationships. Also populates the list of movies that each
+ * actor is involved in.
+ *
+ * Parameters:
+ * in_filename: input filename
+ * use_weighted_edges: if true, compute edge weights as 1 +
+ * (2015 - movie_year), otherwise all edge weights will be 1.
+ *
+ * Returns:
+ * The year of the earliest movie made if file was loaded sucessfully, or
+ * -1 otherwise.
  */
-int ActorGraph::loadFromFile(string in_filename, bool use_weighted_edges) {
+int ActorGraph::loadFromFile(string in_filename, bool use_weighted_edges)
+{
+  ifstream infile(in_filename);                     // Input filestream
+  bool have_header = false;                         // Skip the first line
+  int minYear = 2015;                               // Earliest released movie
 
-  // Initialize the file stream
-  ifstream infile(in_filename);
-
-  // Skip the first line, since it is a header
-  bool have_header = false;
-
-  // Keep track of the earliest year available
-  int minYear = 2015;
-
-  // keep reading lines until the end of file is reached
+  // Keep reading lines until the end of file is reached
   while (infile) {
-      string s;
+    string s;
 
-      // get the next line
-      if (!getline( infile, s )) break;
+    // Get the next line
+    if (!getline( infile, s )) break;
 
-      // Skip the header
-      if (!have_header) {
-          have_header = true;
-          continue;
-      }
+    // Skip the header
+    if (!have_header) {
+        have_header = true;
+        continue;
+    }
 
-      // Parse the string
-      istringstream ss( s );
-      vector <string> record;
+    // Parse the string and store components (name, movie title, year)
+    istringstream ss( s );
+    vector <string> record;
+    while (ss) {
+      string next;
 
-      while (ss) {
-          string next;
+      // Get the next string before hitting a tab char and put it in 'next'
+      if (!getline( ss, next, '\t' )) break;
+      record.push_back( next );
+    }
 
-          // Get the next string before hitting a tab character and put it
-          // in 'next'
-          if (!getline( ss, next, '\t' )) break;
+    // We should have exactly 3 columns: name, movie title, year
+    if (record.size() != 3) { continue; }
+    string actor_name(record[0]);
+    string movie_title(record[1]);
+    int movie_year = stoi(record[2]);
 
-          record.push_back( next );
-      }
+    // Keep track of date of earliest released movie
+    if (movie_year < minYear) {
+      minYear = movie_year;
+    }
 
-      // We should have exactly 3 columns: name, movie, year
-      if (record.size() != 3) { continue; }
+    // Create a unique identifier for the movie
+    string movie_id = movie_title + "#@" + to_string(movie_year);
 
-      string actor_name(record[0]);
-      string movie_title(record[1]);
-      int movie_year = stoi(record[2]);
+    // Check if the actor has not been encountered yet in the hashmap
+    if (actors.find(actor_name) == actors.end()) {
+      ActorNode * new_actor = new ActorNode(actor_name);
+      actors.insert({actor_name, new_actor});
+    }
 
-      // Check if this movie is made earlier than current minYear
-      if (movie_year < minYear) {
-        minYear = movie_year;
-      }
+    // Check if the movie has not been encountered yet in the hashmap
+    Movie * curr_movie;
+    int weight = 1;
+    if (movies.find(movie_id) == movies.end()) {
 
-      // Create a unique identifier for the movie
-      string movie_id = movie_title + "#@" + to_string(movie_year);
+      // Create a new movie with the correct weight
+      if (use_weighted_edges) { weight = 2015 - movie_year + 1; }
+      curr_movie = new Movie(movie_year, weight, movie_id, movie_title);
 
-      // Check if the actor has not been encountered yet in the hashmap
-      if (actors.find(actor_name) == actors.end()) {
-        ActorNode * new_actor = new ActorNode(actor_name);
-        actors.insert({actor_name, new_actor});
-      }
+      // Insert into hashmap containing movies
+      movies.insert({movie_id, curr_movie});
+    }
 
-      // Check if the movie has not been encountered yet in the hashmap
-      Movie * curr_movie;
-      int weight = 1;
-      if (movies.find(movie_id) == movies.end()) {
+    // Already have a record of the current movie
+    else {
+      curr_movie = movies[movie_id];
+    }
 
-        // Create a new movie with the correct weight
-        if (use_weighted_edges) { weight = 2015 - movie_year + 1; }
-        curr_movie = new Movie(movie_year, weight, movie_id, movie_title);
+    // Add the actor to the cast of the movie
+    movies[movie_id]->cast.push_back(actor_name);
 
-        // Insert into hashmap containing movies
-        movies.insert({movie_id, curr_movie});
-      }
+    // Check if the actor has been involved in a movie in the given year
+    ActorNode * curr_actor = actors[actor_name];
+    if (curr_actor->movie.find(movie_year) == curr_actor->movie.end()) {
 
-      // Already have a record of the current movie
-      else {
-        curr_movie = movies[movie_id];
-      }
+      // Create a new queue to hold movies of the given year for that actor
+      queue<Movie *> movieQueue;
+      curr_actor->movie.insert({movie_year, movieQueue});
+    }
 
-      // Add the actor to the cast of the movie
-      movies[movie_id]->cast.push_back(actor_name);
-
-      // Check if the actor has been involved in a movie in the given year
-      ActorNode * curr_actor = actors[actor_name];
-      if (curr_actor->movie.find(movie_year) == curr_actor->movie.end()) {
-
-        // Create a new queue to hold movies of the given year for that actor
-        queue<Movie *> movieQueue;
-        curr_actor->movie.insert({movie_year, movieQueue});
-      }
-
-      // Add movie to list of movies actor is involved in
-      curr_actor->movie[movie_year].push(curr_movie);
+    // Add movie to list of movies actor is involved in
+    curr_actor->movie[movie_year].push(curr_movie);
   }
 
   if (!infile.eof()) {
@@ -131,8 +135,12 @@ int ActorGraph::loadFromFile(string in_filename, bool use_weighted_edges) {
 /*
  * Populate adjacency lists with movies made in the given year. Assume that
  * there exists at least one movie made in the given year.
+ *
+ * Parameters:
+ * year: The year of movies we want to populate the graph with.
  */
-void ActorGraph::connectInYear(int year) {
+void ActorGraph::connectInYear(int year)
+{
 
   // Iterate through each actor
   for (auto actor: actors) {
@@ -165,10 +173,14 @@ void ActorGraph::connectInYear(int year) {
 }
 
 /*
- * Populate the adjacency list for each node, in order of year. Pass in
- * which year we want to start populating.
+ * Populate the adjacency list for each node, in order of year. Pass in the
+ * year of the earliest movie.
+ *
+ * Parameters:
+ * minYear: the year of the earliest released movie.
  */
-void ActorGraph::createGraph(int minYear) {
+void ActorGraph::createGraph(int minYear)
+{
 
   // Fill each adjacency list by year
   for (int year = minYear; year < 2016; year++) {
@@ -177,7 +189,7 @@ void ActorGraph::createGraph(int minYear) {
 }
 
 /*
- * Reset the prev and dist fields in all the nodes in the tree.
+ * Reset all the nodes in the graph for a new search.
  */
 void ActorGraph::reset()
 {
@@ -189,7 +201,8 @@ void ActorGraph::reset()
 }
 
 /*
- * Clear all adjacency lists for all nodes.
+ * Disconnect all the nodes in the graph; remove all nodes from all
+ * adjacency lists.
  */
 void ActorGraph::clear()
 {
@@ -198,8 +211,19 @@ void ActorGraph::clear()
   }
 }
 
-
-bool ActorGraph::breadthFirstSearch(string actor1, string actor2) {
+/*
+ * Breadth first search on the graph structure, assuming the edges are
+ * unweighted.
+ *
+ * Parameters:
+ * actor1: The name of the node we want to start the search at.
+ * actor2: the name of the node we are looking for.
+ *
+ * Returns:
+ * True if there exists a connection between actor1 and actor2.
+ */
+bool ActorGraph::breadthFirstSearch(string actor1, string actor2)
+{
 
   // Grab the start and end nodes
   ActorNode * start = actors[actor1];
@@ -237,7 +261,14 @@ bool ActorGraph::breadthFirstSearch(string actor1, string actor2) {
   return false;
 }
 
-
+/*
+ * Write the path defined by a breadth first search or Dijkstra's algorithm.
+ *
+ * Parameters:
+ * actor1: name of start node.
+ * actor2: name of end node.
+ * output: Stream to write out to.
+ */
 void ActorGraph::outputPath(string actor1, string actor2, ofstream & output) {
 
   // Grab the start and end nodes
@@ -275,4 +306,37 @@ void ActorGraph::outputPath(string actor1, string actor2, ofstream & output) {
   // Reset the graph
   reset();
   return;
+}
+
+/*
+ * Destructor function for ActorGraph.
+ */
+ActorGraph::~ActorGraph()
+{
+
+  // Delete all the actors
+  for (auto actor = actors.begin(); actor != actors.end(); actor++) {
+    delete actor->second;
+  }
+
+  // Delete all the movies
+  for (auto movie = movies.begin(); movie != movies.end(); movie++) {
+    delete movie->second;
+  }
+}
+
+/*
+ * Implementation of Dijkstra's algorithm to search a graph structure with
+ * weighted edges.
+ *
+ * Parameters:
+ * actor1: The name of the node we want to start the search at.
+ * actor2: the name of the node we are looking for.
+ *
+ * Returns:
+ * True if there exists a connection between actor1 and actor2.
+ */
+bool weightedSearch(string actor1, string actor2)
+{
+  return true;
 }
