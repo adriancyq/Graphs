@@ -17,46 +17,6 @@
 
 using namespace std;
 
-class nodeComparer{
-  public:
-    bool operator() (ActorNode*& first, ActorNode*& next){
-      return (first->dist) > (next->dist);
-    }
-};
-
-void Dijkstra(string &actor1, string &actor2, ActorGraph &graph) {
-  string startActor = actor1;
-  string nextActor = actor2;
-  priority_queue<ActorNode*, vector<ActorNode*>, nodeComparer> actorQ;
-  ActorNode* front;
-  int current_distance;
-
-
-  graph.actors[startActor]->dist = 0;
-  actorQ.push(graph.actors[startActor]);
-
-  while (!actorQ.empty()){
-    front = actorQ.top();
-    actorQ.pop();
-
-    if (front->done){
-      continue;
-    }
-    else{
-      front->done = true;
-      for (auto theOne = front->adjacent.begin(); theOne != front->adjacent.end(); ++theOne) {
-        current_distance = front->dist + (theOne->second->weight);
-
-        if (current_distance < theOne->first->dist){
-          theOne->first->dist = current_distance;
-          theOne->first->prev = front;
-          actorQ.push(theOne->first);
-        }
-      }
-    }
-  }
-}
-
 int main(int argc, char ** argv) {
 
   // Check that user passed in 4 arguments
@@ -65,12 +25,10 @@ int main(int argc, char ** argv) {
     return -1;
   }
 
-  string second = argv[2];
-  string weight = "w";
-
   // Grab user specified files
   string movieCasts = argv[1];
-  bool weightedEdges = (second.compare(weight)) ? true: false;
+  string useWeighted = argv[2];
+  bool weightedEdges = (useWeighted.compare(string("w"))) ? false : true;
   string testPairs = argv[3];
   string outputFile = argv[4];
 
@@ -122,7 +80,7 @@ int main(int argc, char ** argv) {
 
     // If we are using weighted edges, use Dijkstra's algorithm
     if (weightedEdges) {
-      Dijkstra(actor1, actor2, *graph);
+      graph->weightedSearch(actor1, actor2);
     }
 
     // If we are using unweighted edges, use a BFS

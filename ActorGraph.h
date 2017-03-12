@@ -17,6 +17,19 @@
 
 using namespace std;
 
+/*
+ * Comparator class for the priority queue, to be used for Dijkstra's
+ * algorithm. Nodes with smaller distance have higher priority.
+ */
+class nodeComparator
+{
+  public:
+    bool operator() (ActorNode *& first, ActorNode *& second)
+    {
+      return (first->dist) > (second->dist);
+    }
+};
+
 class ActorGraph
 {
 public:
@@ -78,7 +91,7 @@ public:
    * True if there exists a connection between actor1 and actor2.
    */
    bool weightedSearch(string actor1, string actor2);
-   
+
   /*
    * Disconnect all the nodes in the graph; remove all nodes from all
    * adjacency lists.

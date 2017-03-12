@@ -92,7 +92,7 @@ int ActorGraph::loadFromFile(string in_filename, bool use_weighted_edges)
     if (movies.find(movie_id) == movies.end()) {
 
       // Create a new movie with the correct weight
-      if (use_weighted_edges) { weight = 2015 - movie_year + 1; }
+      if (use_weighted_edges) { weight = (2015 - movie_year) + 1; }
       curr_movie = new Movie(movie_year, weight, movie_id, movie_title);
 
       // Insert into hashmap containing movies
@@ -189,13 +189,15 @@ void ActorGraph::createGraph(int minYear)
 }
 
 /*
- * Reset all the nodes in the graph for a new search.
+ * Reset all the nodes in the graph for a new breadth first search or weighted
+ * search.
  */
 void ActorGraph::reset()
 {
   for (auto actor = actors.begin(); actor != actors.end(); actor++) {
     actor->second->prev = NULL;
     actor->second->dist = numeric_limits<int>::max();
+    actor->second->done = false;
   }
   return;
 }
@@ -228,6 +230,9 @@ bool ActorGraph::breadthFirstSearch(string actor1, string actor2)
   // Grab the start and end nodes
   ActorNode * start = actors[actor1];
   ActorNode * end = actors[actor2];
+
+  // Reset the graph
+  reset();
 
   // Initialize the queue and add starting node
   queue<ActorNode *> toExplore;
@@ -302,9 +307,6 @@ void ActorGraph::outputPath(string actor1, string actor2, ofstream & output) {
 
   // Output the last node in the path
   output <<'('<< path[0]->name << ')'<<endl;
-
-  // Reset the graph
-  reset();
   return;
 }
 
@@ -336,7 +338,54 @@ ActorGraph::~ActorGraph()
  * Returns:
  * True if there exists a connection between actor1 and actor2.
  */
-bool weightedSearch(string actor1, string actor2)
+bool ActorGraph::weightedSearch(string actor1, string actor2)
 {
-  return true;
+  // Grab the start and end nodes
+  ActorNode * start = actors[actor1];
+  ActorNode * end = actors[actor2];
+
+  // Reset the graph for a new search
+  reset();
+
+  // Initialize the priority queue of nodes to explore
+  priority_queue<ActorNode *, vector<ActorNode *>, nodeComparator> toExplore;
+
+  // Enqueue the start node to begin the search
+  start->dist = 0;
+  toExplore.push(start);
+
+  // Explore all nodes
+  while (!toExplore.empty()) {
+
+    // Dequeue the next node in the shortest path
+    ActorNode * front = toExplore.top();
+    toExplore.pop();
+
+    // Check if we found the end node
+    if (front->name == end->name) { return true; }
+
+    // Node's min path hasn't been discovered yet
+    if (!front->done) {
+      front->done = true;
+
+      // Go through all the neighbors
+      for (auto node = front->adjacent.begin(); node != front->adjacent.end(); ++node) {
+        ActorNode * curr_node = node->first;  // Next neighbor
+        Movie * curr_movie = node->second;    // Movie connecting two actors
+
+        // Distance to neighbor from current node
+        int total_dist = front->dist + (curr_movie->weight);
+
+        // Smaller weight path has been found
+        if (total_dist < curr_node->dist) {
+          curr_node->dist = total_dist;
+          curr_node->prev = front;
+          toExplore.push(curr_node);
+        }
+      }
+    }
+  }
+
+  // Searched the entire graph and could not find end node from start
+  return false;
 }
