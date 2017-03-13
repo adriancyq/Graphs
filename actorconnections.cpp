@@ -3,17 +3,20 @@
  * Author: Jonathan Chiu (A12113428), Adrian Cordova (A12010305)
  * Date:   CSE 100 Winter 2017 2/28/17
  *
- * Determine after which year two actors became connected.
+ * Determine after which year two actors became connected using either a
+ * breadth first search with a graph structure of a find operation with a
+ * disjoint set structure.
  */
 
- #include <sstream>
- #include <cstdlib>
- #include <iostream>
- #include <fstream>
- #include <vector>
- #include <queue>
- #include <string>
- #include "ActorGraph.h"
+#include <sstream>
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <queue>
+#include <string>
+#include "ActorGraph.h"
+#include "UnionFind.h"
 
 using namespace std;
 
@@ -32,29 +35,43 @@ int main(int argc, char ** argv) {
   string algorithm = argv[4];
 
   // Use ufind by default
-  bool useUfind = (algorithm.compare(string("ufind"))) ? true: false;
+  bool useUfind = (algorithm.compare(string("ufind"))) ? false: true;
 
-  // Initialize the graph and read in actor/movie pairs
-  ActorGraph * graph = new ActorGraph();
-  int minYear = graph->loadFromFile(movieCasts, false);
+  // Range of years
+  int minYear = 2015;
   int maxYear = 2015;
 
-  // Initialize the input file stream
-  ifstream infile(testPairs);
+  // Initialize the graph or a disjoint set data structure
+  UnionFind * disjointSet;
+  ActorGraph * graph;
+  if (useUfind) {
+    cerr << "Use UnionFind." << endl;
+    disjointSet = new UnionFind();
+    minYear = disjointSet->loadFromFile(movieCasts);
+    cerr << "Min year: " << minYear << endl;
+  }
+  else {
+    cerr << "Use Graphs." << endl;
+    graph = new ActorGraph();
+    minYear = graph->loadFromFile(movieCasts, false);
+    cerr << "Min year: " << minYear << endl;
+  }
 
-  // Initialize the output file stream
+  // Initialize the input/output file stream
+  cerr << "Opening File I/O streams." << endl;
+  ifstream infile(testPairs);
   ofstream outfile(outputFile);
   outfile << "Actor1\tActor2\tYear" << endl;
 
+  // Keep reading lines until end of file is reached
   bool have_header = false;
-
-  //keep reading lines until end of file is reached
   while (infile) {
   	string s;
 
-  	//get the next line
+  	// Get the next line
   	if (!getline( infile, s)) break;
 
+    // Skip the header
   	if (!have_header){
   		have_header = true;
   		continue;
@@ -67,28 +84,37 @@ int main(int argc, char ** argv) {
   	while (ss) {
   		string next;
 
-  		//Get the next string before hitting a tab character
-  		//and put it in 'next'
+  		// Get the next string before hitting a tab char and put it in 'next'
   		if (!getline( ss, next, '\t' )) break;
-
   		record.push_back( next );
   	}
 
 
   	//We should have exactly 2 columns: starting actor and ending actor
-  	if (record.size() != 2) {continue;}
+  	if (record.size() != 2) { continue; }
   	string actor1(record[0]);
   	string actor2(record[1]);
 
-    // Go through each year and do a BFS
+    // Go through each year
     bool connected = false;
     for (int year = minYear; year <= maxYear; year++) {
-      graph->connectInYear(year);
-      connected = graph->breadthFirstSearch(actor1, actor2);
 
-      // Reset the nodes for next search
-      graph->reset();
-      
+      // Find operation for a disjoint set
+      if (useUfind) {
+        disjointSet->unionInYear(year);
+        connected = disjointSet->find(actor1, actor2);
+      }
+
+      // Breadth first search for a graph
+      else {
+        graph->connectInYear(year);
+        connected = graph->breadthFirstSearch(actor1, actor2);
+
+        // Reset the nodes for next search
+        graph->reset();
+      }
+
+
       // Found a connection
       if (connected) {
         outfile << actor1 << "\t" << actor2 << "\t" << year << "\n";
@@ -101,8 +127,15 @@ int main(int argc, char ** argv) {
       outfile << actor1 << "\t" << actor2 << "\t" << 9999 << "\n";
     }
 
-    // Clear the adjacency lists so we can do a fresh search
-    graph->clear();
+    // Clear the up trees in the disjoint set
+    if (useUfind) {
+      disjointSet->clear();
+    }
+
+    // Clear the adjacency lists
+    else {
+      graph->clear();
+    }
   }
 
   if (!infile.eof()) {
