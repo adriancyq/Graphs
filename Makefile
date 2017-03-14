@@ -21,7 +21,7 @@ all: pathfinder actorconnections extension
 # include what ever source code *.h files pathfinder relies on (these are merely the ones that were used in the solution)
 
 pathfinder: ActorGraph.o
-actorconnections: ActorGraph.o
+actorconnections: ActorGraph.o UnionFind.o
 extension: ATPGraph.o
 
 # include what ever source code *.h files ActorGraph relies on (these are merely the ones that were used in the solution)
@@ -29,7 +29,7 @@ extension: ATPGraph.o
 # Note: you do not have to include a *.cpp file if it aleady has a paired *.h file that is already included with class/method headers
 
 #ActorGraph.o: UnionFind.hpp Movie.h ActorNode.h ActorEdge.h ActorGraph.h
-ActorGraph.o: Movie.h ActorNode.h ActorGraph.h
+ActorGraph.o: UnionFind.h Movie.h ActorNode.h ActorGraph.h
 ATPGraph.o: Games.h ATPNode.h ATPGraph.h 
 
 clean:
@@ -38,4 +38,4 @@ clean:
 	rm -f actorconnections
 	rm -rf actorconnections.dSYM
 	rm -f extension *.o core*
-	rm -rf extension.dSYM
+	rm -rf extension.dSYM:
