@@ -1,6 +1,6 @@
 /*
  * ActorGraph.cpp
- * Author: Jonathan Chiu (A12113428), Adrian Cordova (A12010305)
+ * Author: Jonathan Chiu, Adrian Cordova
  * Date: CSE 100 Winter 2017 2/28/17
  *
  * Implementation of the necessary methods for pathfinder, actorconnections
