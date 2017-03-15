@@ -52,51 +52,58 @@ int main(int argc, char ** argv) {
   ofstream outfile(outputFile);
 
   // Write header to output file
-  outfile << "(Winner)\t(Loser)..." << endl;
+  outfile << "(Winner)\t(Loser)\t(Bias)\t#(Players In Between)..." << endl;
 
-  // //keep reading lines until end of file is reached
-  // bool haveHeader = false;
-  // while (infile) {
-  // 	string s;
-  //
-  // 	// Get the next line
-  // 	if (!getline( infile, s)) break;
-  //
-  //   // Skip the header in the input file
-  // 	if (!haveHeader){
-  // 		haveHeader = true;
-  // 		continue;
-  // 	}
-  //
-  // 	// Parse the string
-  // 	istringstream ss( s );
-  // 	vector <string> record;
-  // 	while (ss) {
-  // 		string next;
-  //
-  // 		//Get the next string before hitting a comma and put it in 'next'
-  // 		if (!getline( ss, next, ',' )) break;
-  // 		record.push_back( next );
-  // 	}
-  //
-  //
-  // 	// We should have exactly 2 columns for each row: players 1 and 2
-  // 	if (record.size() != 2) {continue;}
-  //   string player1 = record[0];
-  //   string player2 = record[1];
-  //
-  //   // Find the shortest path between the two players and output who will win
-  //   graph->breadthFirstSearch(player1, player2);
-  //   graph->determineWinner(player1, player2, outfile);
-  // }
-  //
-  // // Unable to read test pairs
-  // if (!infile.eof()) {
-  //   cerr << "Failed to read " << testPairs << "!" << endl;
-  //   infile.close();
-  //   outfile.close();
-  //   return -1;
-  // }
+  //keep reading lines until end of file is reached
+  bool haveHeader = false;
+  while (infile) {
+  	string s;
+
+  	// Get the next line
+  	if (!getline( infile, s)) break;
+
+    // Skip the header in the input file
+  	if (!haveHeader){
+  		haveHeader = true;
+  		continue;
+  	}
+
+  	// Parse the string
+  	istringstream ss( s );
+  	vector <string> record;
+  	while (ss) {
+  		string next;
+
+  		//Get the next string before hitting a comma and put it in 'next'
+  		if (!getline( ss, next, ',' )) break;
+  		record.push_back( next );
+  	}
+
+
+  	// We should have exactly 2 columns for each row: players 1 and 2
+  	if (record.size() != 2) {continue;}
+    string player1 = record[0];
+    string player2 = record[1];
+
+    // Find the shortest path between the two players and output who will win
+    if (graph->breadthFirstSearch(player1, player2)) {
+      graph->determineWinner(player1, player2, outfile);
+    }
+
+    // No connection between two players
+    else {
+      outfile << player1 << "\t" << player2 << "\t-1\tN/A" << endl;
+    }
+
+  }
+
+  // Unable to read test pairs
+  if (!infile.eof()) {
+    cerr << "Failed to read " << testPairs << "!" << endl;
+    infile.close();
+    outfile.close();
+    return -1;
+  }
 
   // Close filestreams
   infile.close();

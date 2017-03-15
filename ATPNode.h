@@ -40,7 +40,7 @@ public:
   /*
    * Adjacency list containing games (as edges) that the player played in.
    */
-  vector<Game *> adjacent;
+  unordered_map<ATPNode *, Game *> adjacent;
 
   /*
    * Constructs an ATPNode instance.

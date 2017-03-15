@@ -28,6 +28,12 @@ public:
    unordered_map<string, ATPNode *> players;
 
   /*
+   * Store each game in a vector, so that we can delete the game objects by
+   * iterating through this.
+   */
+  vector<Game *> games;
+  
+  /*
    * Constructor function for the graph.
    */
   ATPGraph(void);

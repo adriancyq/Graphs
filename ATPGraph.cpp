@@ -82,10 +82,12 @@ bool ATPGraph::loadFromFile(string filename)
     // Create two new Game objects
     Game * winnerGame = new Game(loserName, winnerFirstServe, tournamentName);
     Game * loserGame = new Game(winnerName, -loserFirstServe, tournamentName);
+    games.push_back(winnerGame);
+    games.push_back(loserGame);
 
     // Add to each player's adjacency list
-    players[winnerName]->adjacent.push_back(winnerGame);
-    players[loserName]->adjacent.push_back(loserGame);
+    players[winnerName]->adjacent.insert({players[loserName], winnerGame});
+    players[loserName]->adjacent.insert({players[winnerName], loserGame});
   }
 
   // Unable to read from input file
@@ -114,40 +116,40 @@ bool ATPGraph::loadFromFile(string filename)
 bool ATPGraph::breadthFirstSearch(string player1, string player2)
 {
 
-  // // Grab the start and end nodes
-  // ATPNode * start = players[player1];
-  // ATPNode * end = players[player2];
-  //
-  // // Reset the graph
-  // reset();
-  //
-  // // Initialize the queue and add starting node
-  // queue<ATPNode *> toExplore;
-  // start->dist = 0;
-  // toExplore.push(start);
-  //
-  // // Do a BFS
-  // while (!toExplore.empty()) {
-  //
-  //   // Dequeue the head
-  //   ATPNode * head = toExplore.front();
-  //   toExplore.pop();
-  //
-  //   // Check if we found the node we're looking for
-  //   if (head->name == end->name) { return true; }
-  //
-  //   // Explore each of the neighbors
-  //   for (auto node = head->adjacent.begin(); node != head->adjacent.end(); node++) {
-  //     ATPNode * curr_node = node->first;
-  //
-  //     // Check if distance is infinity (not visited)
-  //     if (curr_node->dist == numeric_limits<int>::max()) {
-  //       curr_node->dist = head->dist + 1;
-  //       curr_node->prev = head;
-  //       toExplore.push(curr_node);
-  //     }
-  //   }
-  // }
+  // Grab the start and end nodes
+  ATPNode * start = players[player1];
+  ATPNode * end = players[player2];
+
+  // Reset the graph
+  reset();
+
+  // Initialize the queue and add starting node
+  queue<ATPNode *> toExplore;
+  start->dist = 0;
+  toExplore.push(start);
+
+  // Do a BFS
+  while (!toExplore.empty()) {
+
+    // Dequeue the head
+    ATPNode * head = toExplore.front();
+    toExplore.pop();
+
+    // Check if we found the node we're looking for
+    if (head->name == end->name) { return true; }
+
+    // Explore each of the neighbors
+    for (auto node = head->adjacent.begin(); node != head->adjacent.end(); node++) {
+      ATPNode * curr_node = node->first;
+
+      // Check if distance is infinity (not visited)
+      if (curr_node->dist == numeric_limits<int>::max()) {
+        curr_node->dist = head->dist + 1;
+        curr_node->prev = head;
+        toExplore.push(curr_node);
+      }
+    }
+  }
 
   // Gone through the entire graph and could not find a connection
   return false;
@@ -163,38 +165,46 @@ bool ATPGraph::breadthFirstSearch(string player1, string player2)
  */
 void ATPGraph::determineWinner(string player1, string player2, ofstream & output) {
 
-  // // Grab the start and end nodes
-  // ATPNode * start = players[player1];
-  // ATPNode * end = players[player2];
-  //
-  // // Initialize a vector to keep track of nodes in the path
-  // vector<ATPNode *> path;
-  //
-  // // Traverse the path from end to start
-  // while (start != end) {
-  //
-  //   // End if BFS was unsuccessful and there does not exists a path from
-  //   // start to end nodes
-  //   if (!end) {return; }
-  //
-  //   // Traverse path from end to start
-  //   path.push_back(end);
-  //   end = end->prev;
-  // }
-  //
-  // // Add the starting node to the last position in the vector
-  // path.push_back(start);
-  //
-  // // Output the path from start to second to end (or else there will be an
-  // // extra -->)
-  // for (int i = path.size() - 1; i > 0; i--) {
-  //   output << '(' << path[i]->name << ")--[" <<
-  //     path[i]->adjacent[path[i - 1]]->id << "]-->";
-  // }
-  //
-  // // Output the last node in the path
-  // output <<'('<< path[0]->name << ')'<<endl;
-  // return;
+  // Grab the start and end nodes
+  ATPNode * start = players[player1];
+  ATPNode * end = players[player2];
+
+  // Initialize a vector to keep track of nodes in the path
+  vector<ATPNode *> path;
+
+  // Traverse the path from end to start
+  while (start != end) {
+
+    // End if BFS was unsuccessful and there does not exists a path from
+    // start to end nodes
+    if (!end) {return; }
+
+    // Traverse path from end to start
+    path.push_back(end);
+    end = end->prev;
+  }
+
+  // Add the starting node to the last position in the vector
+  path.push_back(start);
+
+  // Determine if the bias is positive or negative
+  int bias = 0;
+  for (int i = path.size() - 1; i > 0; i--) {
+    bias += path[i]->adjacent[path[i - 1]]->bias;
+  }
+
+  // First player wins if bias is positive
+  if (bias >= 0) {
+    output << player1 << "\t" << player2 << "\t" << bias << "\t" <<
+      path.size() - 2 << endl;
+  }
+
+  // Second player wins if bias is negative
+  else {
+    bias *= -1;
+    output << player2 << "\t" << player1 << "\t" << bias << "\t" <<
+      path.size() - 2 << endl;
+  }
 }
 
 /*
@@ -203,18 +213,21 @@ void ATPGraph::determineWinner(string player1, string player2, ofstream & output
 ATPGraph::~ATPGraph()
 {
 
-  // // Delete all the actors
-  // for (auto actor = players.begin(); actor != players.end(); actor++) {
-  //   delete actor->second;
-  // }
-  //
-  // // Delete all the movies
-  // for (auto movie = games.begin(); movie != games.end(); movie++) {
-  //   delete movie->second;
-  // }
+  // Delete all the players
+  for (auto player = players.begin(); player != players.end(); player++) {
+    delete player->second;
+  }
+
+
 }
 
 /*
  * Reset all the nodes in the graph for a new search.
  */
- void reset() {}
+ void ATPGraph::reset() {
+   for (auto player = players.begin(); player != players.end(); player++) {
+      player->second->prev = NULL;
+      player->second->dist = numeric_limits<int>::max();
+   }
+   return;
+ }
