@@ -144,7 +144,8 @@ bool ATPGraph::breadthFirstSearch(string player1, string player2)
     if (head->name == end->name) { return true; }
 
     // Explore each of the neighbors
-    for (auto node = head->adjacent.begin(); node != head->adjacent.end(); node++) {
+    for (auto node = head->adjacent.begin(); node != head->adjacent.end();
+        node++) {
       ATPNode * curr_node = node->first;
 
       // Check if distance is infinity (not visited)
@@ -168,7 +169,8 @@ bool ATPGraph::breadthFirstSearch(string player1, string player2)
  * player2: name of end node.
  * output: Stream to write out to.
  */
-void ATPGraph::determineWinner(string player1, string player2, ofstream & output) {
+void ATPGraph::determineWinner(string player1, string player2,
+    ofstream & output) {
 
   // Grab the start and end nodes
   ATPNode * start = players[player1];

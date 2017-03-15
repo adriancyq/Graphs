@@ -161,9 +161,11 @@ void ActorGraph::connectInYear(int year)
         // Add a new node to the current actor's adjacency list if the node
         // doesn't already exist AND the current cast member isn't the current
         // actor.
-        if (curr_actor->adjacent.find(actors[curr_movie->cast[i]]) == curr_actor->adjacent.end()) {
+        if (curr_actor->adjacent.find(actors[curr_movie->cast[i]]) ==
+            curr_actor->adjacent.end()) {
           if (actors[curr_movie->cast[i]] != curr_actor) {
-            curr_actor->adjacent.insert({actors[curr_movie->cast[i]], curr_movie});
+            curr_actor->adjacent.insert({actors[curr_movie->cast[i]],
+                curr_movie});
           }
 
         }
@@ -172,8 +174,13 @@ void ActorGraph::connectInYear(int year)
         // but we need to check if the current movie is more recent. If so,
         // we replace the values in case we use a weighted graph.
         else {
-          if (curr_actor->adjacent.find(actors[curr_movie->cast[i]])->second->weight > curr_movie->weight) {
-            curr_actor->adjacent.find(actors[curr_movie->cast[i]])->second = curr_movie;
+
+          // Compare the weight of the existing movie to the weight of the
+          // new movie
+          if (curr_actor->adjacent.find(actors[curr_movie->cast[i]])->
+              second->weight > curr_movie->weight) {
+            curr_actor->adjacent.find(actors[curr_movie->cast[i]])->second =
+                curr_movie;
           }
 
         }
@@ -266,7 +273,8 @@ bool ActorGraph::breadthFirstSearch(string actor1, string actor2)
     if (head->name == end->name) { return true; }
 
     // Explore each of the neighbors
-    for (auto node = head->adjacent.begin(); node != head->adjacent.end(); node++) {
+    for (auto node = head->adjacent.begin(); node != head->adjacent.end();
+        node++) {
       ActorNode * curr_node = node->first;
 
       // Check if distance is infinity (not visited)
