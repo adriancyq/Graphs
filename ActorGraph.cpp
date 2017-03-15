@@ -351,10 +351,6 @@ bool ActorGraph::weightedSearch(string actor1, string actor2)
       actors.find(actor2) == actors.end()) {
     return false;
   }
-  
-  // Grab the start and end nodes
-  ActorNode * start = actors[actor1];
-  ActorNode * end = actors[actor2];
 
   // Reset the graph for a new search
   reset();
@@ -363,8 +359,8 @@ bool ActorGraph::weightedSearch(string actor1, string actor2)
   priority_queue<ActorNode *, vector<ActorNode *>, nodeComparator> toExplore;
 
   // Enqueue the start node to begin the search
-  start->dist = 0;
-  toExplore.push(start);
+  actors[actor1]->dist = 0;
+  toExplore.push(actors[actor1]);
 
   // Explore all nodes
   while (!toExplore.empty()) {
@@ -374,14 +370,15 @@ bool ActorGraph::weightedSearch(string actor1, string actor2)
     toExplore.pop();
 
     // Check if we found the end node
-    if (front->name == end->name) { return true; }
+    if (front->name.compare(actor2) == 0) { return true; }
 
     // Node's min path hasn't been discovered yet
     if (!front->done) {
       front->done = true;
 
       // Go through all the neighbors
-      for (auto node = front->adjacent.begin(); node != front->adjacent.end(); ++node) {
+      for (auto node = front->adjacent.begin(); node != front->adjacent.end();
+          ++node) {
         ActorNode * curr_node = node->first;  // Next neighbor
         Movie * curr_movie = node->second;    // Movie connecting two actors
 
