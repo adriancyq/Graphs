@@ -1,6 +1,6 @@
 /*
  * extension.cpp
- * Author: Jonathan Chiu (A12113428), Adrian Cordova (A12010305)
+ * Author: Jonathan Chiu, Adrian Cordova
  * Date:   CSE 100 Winter 2017 3/12/17
  *
  * Extension.cpp which traverses a graph of ATP data
