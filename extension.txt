@@ -1,0 +1,76 @@
+Predicting ATP Match Results
+
+The problem:
+Given two tennis players, who will win? The two tennis players may or may not
+have played in the past.
+
+Our solution:
+We are able to solve this using a directed graph data structure, where each
+player is represented by a node, and each match is represented by a directed
+edge. The feature we are concerned about is the number of points won when the
+player has made his first serve. We denote this number as the "feature."
+
+As a trivial example, if player 1 has a greater
+number of points won on his first serve against player 2 (player 1 has played
+player 2), then we predict that player 1 will win if they played again.
+
+The necessity of the graph-based data structure arises when the two players have
+not played each other in the past, but we are still interested in the match up.
+For example, say we are interested in the match up between players 1 and 3, but
+they have not played each other in the past. However, we do know that player 1
+has played player 2 and player 2 has played player 3. Using this "path" of
+players, we can make an inference of the match up with players 1 and 3.
+
+To minimize the number of inferences we make, we wish to find the SHORTEST path
+between two nodes, so we utilize a breadth first search algorithm. Once we
+have determined the shortest "path", we use the following algorithm to
+determine whether player 1 or 3 will win:
+
+1. Say our path is the following players: 1, 2, 3. We are concerned with the
+  edges that connect the players, namely the edges between 1 & 2, and 2 & 3.
+2. Start with a bias of 0, and start at the first node in the path (current = 1)
+3. If the (current) node beat the (current + 1) node, then add the number of
+  points won by the (current) player on his first serve to the bias. If the
+  (current) player lost against the (current + 1) player, then subtract
+  the number of points won by the (current + 1) player on his first serve
+  to the bias.
+4. Continue for all edges in the path.
+5. If the bias is positive, then player 1 is predicted to win. If the bias is
+  negative, then player 2 is predicted to win.
+
+Testing:
+We first tested on pairs of players who have actually played other. For example,
+Kei Nishikori lost to Grigor Dimitrov in Brisbane. Since Kei had 36 points won
+on his first serve, our bias is -36, and we predict that Grigor will win.
+
+We then extend to players who have not directly played each other.
+
+How to run:
+>>> make extension
+>>> ./extension atp_matches_2017.csv test_pairs.csv output.tsv
+This will produce an executable called "extension." Extension requires 3 command
+line arguments, the dataset, the test pairs, and the name of the output file.
+Note that all of the files are comma delimited, not tab delimited.
+
+Dataset:
+Download the dataset from here: https://github.com/JeffSackmann/tennis_atp
+We used "atp_master_2017.csv". We have provided a sample dataset called
+"sample_dataset.csv".
+
+Test pairs:
+The test pairs contain two columns, corresponding to the two players. Note
+that there is no header!!! Also note that the two player names are column
+delimited.
+
+Output:
+The program will generate an output file with 5 columns. They are described
+below:
+1. name of the winner
+2. name of the loser
+3. final bias
+4. number of nodes between the two players. If the two have already played each
+  other, this number should be 0.
+
+Note that if two players are not connected, the order of the players given will
+be the order of the output. Bias will be -1, and number of nodes in between
+will be "N/A".

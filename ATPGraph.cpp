@@ -115,6 +115,11 @@ bool ATPGraph::loadFromFile(string filename)
  */
 bool ATPGraph::breadthFirstSearch(string player1, string player2)
 {
+  //Check that the players exist
+  if (players.find(player1) == players.end() ||
+      players.find(player2) == players.end()) {
+    return false;
+  }
 
   // Grab the start and end nodes
   ATPNode * start = players[player1];
@@ -225,9 +230,8 @@ ATPGraph::~ATPGraph()
  * Reset all the nodes in the graph for a new search.
  */
  void ATPGraph::reset() {
-   for (auto player = players.begin(); player != players.end(); player++) {
-      player->second->prev = NULL;
+   for (auto player = players.begin(); player != players.end(); ++player) {
       player->second->dist = numeric_limits<int>::max();
+      player->second->prev = NULL;
    }
-   return;
  }

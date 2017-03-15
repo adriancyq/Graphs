@@ -79,17 +79,20 @@ int main(int argc, char ** argv) {
   	string actor2(record[1]);
 
     // If we are using weighted edges, use Dijkstra's algorithm
+    bool success = false;
     if (weightedEdges) {
-      graph->weightedSearch(actor1, actor2);
+      success = graph->weightedSearch(actor1, actor2);
     }
 
     // If we are using unweighted edges, use a BFS
     else {
-      graph->breadthFirstSearch(actor1, actor2);
+      success = graph->breadthFirstSearch(actor1, actor2);
     }
 
     // Output results of search
-    graph->outputPath(actor1, actor2, outfile);
+    if (success) {
+      graph->outputPath(actor1, actor2, outfile);
+    }
   }
 
   if (!infile.eof()) {

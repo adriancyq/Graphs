@@ -227,6 +227,12 @@ void ActorGraph::clear()
 bool ActorGraph::breadthFirstSearch(string actor1, string actor2)
 {
 
+  //Check that the players exist
+  if (actors.find(actor1) == actors.end() ||
+      actors.find(actor2) == actors.end()) {
+    return false;
+  }
+
   // Grab the start and end nodes
   ActorNode * start = actors[actor1];
   ActorNode * end = actors[actor2];
@@ -340,6 +346,12 @@ ActorGraph::~ActorGraph()
  */
 bool ActorGraph::weightedSearch(string actor1, string actor2)
 {
+  //Check that the players exist
+  if (actors.find(actor1) == actors.end() ||
+      actors.find(actor2) == actors.end()) {
+    return false;
+  }
+  
   // Grab the start and end nodes
   ActorNode * start = actors[actor1];
   ActorNode * end = actors[actor2];
