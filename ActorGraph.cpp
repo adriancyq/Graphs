@@ -141,7 +141,6 @@ int ActorGraph::loadFromFile(string in_filename, bool use_weighted_edges)
  */
 void ActorGraph::connectInYear(int year)
 {
-
   // Iterate through each actor
   for (auto actor: actors) {
     ActorNode * curr_actor = actor.second;
@@ -162,10 +161,21 @@ void ActorGraph::connectInYear(int year)
         // Add a new node to the current actor's adjacency list if the node
         // doesn't already exist AND the current cast member isn't the current
         // actor.
-        if (curr_actor->adjacent.find(actors[curr_movie->cast[i]]) ==
-            curr_actor->adjacent.end() && actors[curr_movie->cast[i]] !=
-            curr_actor) {
-          curr_actor->adjacent.insert({actors[curr_movie->cast[i]], curr_movie});
+        if (curr_actor->adjacent.find(actors[curr_movie->cast[i]]) == curr_actor->adjacent.end()) {
+          if (actors[curr_movie->cast[i]] != curr_actor) {
+            curr_actor->adjacent.insert({actors[curr_movie->cast[i]], curr_movie});
+          }
+
+        }
+
+        // We have already encountered the same actor in the adjacency list,
+        // but we need to check if the current movie is more recent. If so,
+        // we replace the values in case we use a weighted graph.
+        else {
+          if (curr_actor->adjacent.find(actors[curr_movie->cast[i]])->second->weight > curr_movie->weight) {
+            curr_actor->adjacent.find(actors[curr_movie->cast[i]])->second = curr_movie;
+          }
+
         }
       }
     }

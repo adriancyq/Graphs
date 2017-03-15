@@ -28,7 +28,7 @@ int main(int argc, char ** argv) {
   // Grab user specified files
   string movieCasts = argv[1];
   string useWeighted = argv[2];
-  bool weightedEdges = (useWeighted.compare(string("w"))) ? false : true;
+  bool weightedEdges = (useWeighted.compare(string("w")) == 0) ? true: false;
   string testPairs = argv[3];
   string outputFile = argv[4];
 
@@ -79,20 +79,20 @@ int main(int argc, char ** argv) {
   	string actor2(record[1]);
 
     // If we are using weighted edges, use Dijkstra's algorithm
-    bool success = false;
     if (weightedEdges) {
-      success = graph->weightedSearch(actor1, actor2);
+      cout << "Using Dijkstra's on " << actor1 << " and " << actor2 << "." << endl;
+      graph->weightedSearch(actor1, actor2);
     }
 
     // If we are using unweighted edges, use a BFS
     else {
-      success = graph->breadthFirstSearch(actor1, actor2);
+      cout << "Using BFS on " << actor1 << " and " << actor2 << "." << endl;
+      graph->breadthFirstSearch(actor1, actor2);
     }
 
     // Output results of search
-    if (success) {
-      graph->outputPath(actor1, actor2, outfile);
-    }
+    graph->outputPath(actor1, actor2, outfile);
+
   }
 
   if (!infile.eof()) {
