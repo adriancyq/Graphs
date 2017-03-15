@@ -1,6 +1,6 @@
 /*
  * Movie.h
- * Author: Jonathan Chiu (A12113428), Adrian Cordova (A12010305)
+ * Author: Jonathan Chiu, Adrian Cordova
  * Date:   CSE 100 Winter 2017 2/28/17
  *
  * Implementation of the Movie that connects two actor nodes in the graph.
