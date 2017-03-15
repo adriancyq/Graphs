@@ -1,6 +1,6 @@
 /*
  * Game.h
- * Author: Jonathan Chiu (A12113428), Adrian Cordova (A12010305)
+ * Author: Jonathan Chiu, Adrian Cordova
  * Date:   CSE 100 Winter 2017 2/28/17
  *
  * Implementation of a Game object that acts as the edge between two nodes in
