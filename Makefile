@@ -38,4 +38,4 @@ clean:
 	rm -f actorconnections
 	rm -rf actorconnections.dSYM
 	rm -f extension *.o core*
-	rm -rf extension.dSYM
+	rm -rf extension.dSYM:
