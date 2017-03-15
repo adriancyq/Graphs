@@ -1,6 +1,6 @@
 /*
  * actorconnections.cpp
- * Author: Jonathan Chiu (A12113428), Adrian Cordova (A12010305)
+ * Author: Jonathan Chiu, Adrian Cordova
  * Date:   CSE 100 Winter 2017 2/28/17
  *
  * Determine after which year two actors became connected using either a
